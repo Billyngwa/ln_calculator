@@ -17,6 +17,16 @@ const allCalcFunctions = document.querySelectorAll('button.calc-function');
 // Calculator scientific operators
 const scientificOperators = document.querySelectorAll('button.scientificOp');
 
+
+//creating a default value in our input box
+operationsScreen.placeholder = 0;
+
+//addition and substraction group
+calcAddMinusOps = ['-', '+'];
+
+//multiplication and division group
+calcMultDivOps = ['*', '/'];
+
 // Listen for click events on digits
 calcDigits.forEach(digit => {
     digit.addEventListener('click', (event) => {
@@ -42,10 +52,45 @@ arithmeticOperators.forEach(operator => {
             } else {
                 result = eval(operationsScreen.value);
                 answerScreen.value = result;
+                
             }
         } else {
-            operationsScreen.value += clickedOperator;
+            // input 0 + the clicked operator if nothing is on screen
+            if(operationsScreen.value.length == 0){
+                operationsScreen.value = `0${clickedOperator}`;
+                return;
+            }
+
+            // if the last value input is an arithmetic op
+            if(arithmeticOps.includes(operationsScreen.value[operationsScreen.value.length-1])){
+
+                // the clicked operator cannot be the last operator that was recorded on screen
+                if(operationsScreen.value[operationsScreen.value.length-1] !== clickedOperator){
+                    // the minus operator should be the only operator that is added after another operator
+                    if(calcMultDivOps.includes(operationsScreen.value[operationsScreen.value.length-1]) == true && clickedOperator == '-' ){
+                        operationsScreen.value += clickedOperator;
+                    }
+                    // cannot input an operator if the second to last operator and the clicked operator are same
+                    if(calcMultDivOps.includes(operationsScreen.value[operationsScreen.value.length-2]) == false && calcMultDivOps.includes(clickedOperator) == false){
+                        let currVal = operationsScreen.value;
+                        operationsScreen.value = currVal.substr(0, currVal.length - 1);
+                        operationsScreen.value += clickedOperator;
+
+                    }
+                    if(calcMultDivOps.includes(operationsScreen.value[operationsScreen.value.length-2]) == false && calcMultDivOps.includes(clickedOperator) == true) {
+                        // add * or / if the last value is a -
+                        let currVal = operationsScreen.value;
+                        operationsScreen.value = currVal.substr(0, currVal.length - 1);
+                        operationsScreen.value += clickedOperator;
+                    }
+                   
+                }
+            }
+            else {
+                operationsScreen.value += clickedOperator;
+            }
         }
+        
 
     })
 });
@@ -75,6 +120,18 @@ allCalcFunctions.forEach(func => {
         if (clickedFunction == 'DEG') {
             is_degree=true;
         }
+        if(clickedFunction == 'Ans'){
+            result = localStorage.getItem('label');
+            answerScreen.value = result;
+            operationsScreen.value = result;
+        }
+        if(clickedFunction == 'M+'){
+            localStorage.setItem('label', getUserName.value);
+        }
+
+        if(clickedFunction == 'M-'){
+            localStorage.removeItem('label')
+        }
     })
 });
 
@@ -92,7 +149,7 @@ scientificOperators.forEach(operator => {
 })
 
 function operationParser(operation = '') {
-    const scientificOps = ['rand', 'sine', 'tan', 'cos', 'log', 'x^y', 'hyp', 'sqrt'];
+    const scientificOps = ['rand', 'sin', 'tan', 'cos', 'log', 'x^y', 'hyp', 'sqrt'];
     let opertionToPerf;
     let val;
 
@@ -125,12 +182,17 @@ function science(operation='', val = 0, is_degree = true) {
             :operation == 'cos' ? value_to_return = Math.cos(+val)
             :{};
             console.log(value_to_return);
-        
-        
     }
+    
     return value_to_return;
 
+    if (operation == 'sine') {
+        return Math.sin(eval(val));
+    }
 
+    if (operation == 'cos') {
+        return Math.co(eval(val));
+    }
 }
 
 //radians to degrees
